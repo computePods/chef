@@ -23,6 +23,9 @@ ComputePods Chef needs to:
 - be able to signal/kill a spawned process ([Luv 
   process_kill](https://github.com/luvit/luv/blob/master/docs.md#uvprocess_killprocess-signum))
 
+- be able to make https requests on the syncThing server. 
+  **See: [luv-coro-http](https://github.com/creationix/luv-coro-http)**
+
 ## Problem
 
 I would *like* to use:
