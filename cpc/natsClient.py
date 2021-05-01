@@ -13,12 +13,21 @@ class NatsMsg(BaseModel):
   subject: str
   message: str
 
+async def natsClientError(err) :
+  logging.error("NatsClient : {err}".format(err=err))
+
+async def natsClientClosedConn() :
+  logging.warn("NatsClient : connection to NATS server is now closed.")
+
+async def natsClientReconnected() :
+  logging.info("NatsClient : reconnected to NATS server.")
+
 class NatsClient :
 
-  def __init__(self, aNatsServer) :
+  def __init__(self, aContainerName, aHeartBeatPeriod) :
     self.nc = NATS()
-    self.msgQueue   = asyncio.Queue()
-    self.natsServer = aNatsServer
+    self.containerName = aContainerName
+    self.heartBeatPeriod = aHeartBeatPeriod
     self.shutdown   = False
 
   async def heartBeat(self) :
@@ -26,37 +35,29 @@ class NatsClient :
     while not self.shutdown :
       logging.debug("NatsClient: heartbeat")
       loadAvg = os.getloadavg()
-      msg = "hello from {} ({} {} {})".format(platform.node(), loadAvg[0], loadAvg[1], loadAvg[2])
+      msg = "hello from {}-{} (1:{} 5:{} 15:{})".format(
+        platform.node(), self.containerName,
+        loadAvg[0], loadAvg[1], loadAvg[2]
+      )
       await self.nc.publish("heartbeat", bytes(msg, 'utf-8'))
-      await asyncio.sleep(1)
+      await asyncio.sleep(self.heartBeatPeriod)
+
+  async def listenForMessages(self, subject, callBack) :
+    await self.nc.subscribe(subject, cb=callBack)
 
   async def sendMessage(self, msg: NatsMsg) :
-    await self.msgQueue.put(msg)
-
-  async def dealWithMessageQueue(self) :
-    logging.info("NatsClient: starting to deal with queue")
-    i = 0
-    while not self.shutdown :
-      aMsg = await self.msgQueue.get()
-      logging.debug("NatsClient: dealing with queue msg")
-      await self.nc.publish(aMsg.subject, 
-        bytes("{} : {} ({})".format(aMsg.message, i, self.msgQueue.qsize()), 'utf-8'))
-      i += 1
-      #await asyncio.sleep(1)
-      self.msgQueue.task_done()
-      
-  async def runNatsClient(self):
-
-    await self.natsServer.waitUntilRunning("testNats")
-
-    await self.nc.connect("127.0.0.1:4222")
-    
-    await asyncio.gather(
-      self.heartBeat(),
-      self.dealWithMessageQueue()
+    await self.nc.publish(msg.subject, bytes(msg.message, 'utf-8'))
+        
+  async def connectToServers(self):
+    await self.nc.connect(
+      servers=["nats://127.0.0.1:4222"],
+      error_cb=natsClientError,
+      closed_cb=natsClientClosedConn,
+      reconnected_cb=natsClientReconnected
     )
 
-    #await self.heartBeat(),
-    
+  async def closeConnection(self) :    
     # Terminate connection to NATS.
+    self.shutdown = True
+    await asyncio.sleep(1)
     await self.nc.close()

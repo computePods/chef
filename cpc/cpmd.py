@@ -1,15 +1,16 @@
 import asyncio
-import importlib
 import logging
-import os
 import signal
 import traceback
 
+from externalWebServer import ExternalWebServer
+from podWebServer import PodWebServer
 from natsClient import NatsClient
+from natsServer import NatsServer
 
 #logging.basicConfig(filename='majorDomo.log', encoding='utf-8', level=logging.DEBUG)
 logging.basicConfig(level=logging.INFO)
-logging.info("ComputePods Chef starting")
+logging.info("ComputePods MajorDomo starting")
   
 class SignalException(Exception):
   def __init__(self, message):
@@ -24,24 +25,26 @@ signal.signal(signal.SIGTERM, signalHandler)
 signal.signal(signal.SIGHUP, signalHandler)
 
 async def main() :
-  natsClient = NatsClient(os.getenv('CONTAINER_NAME'), 10)
-  await natsClient.connectToServers()
-
-  pluginFiles = os.listdir('./plugins')
-  pluginFiles.sort()
-  for aFile in pluginFiles :
-    if aFile.endswith('.py') :
-      if aFile != '__init__.py' :
-        print("importing {}".format(aFile))
-        aPlugin = importlib.import_module('plugins.{}'.format(aFile[:-3]))
-        await aPlugin.registerPlugin(natsClient)
+  natsServer = NatsServer()
+  natsServerTask = asyncio.create_task(natsServer.runNatsServer())
+  await natsServer.waitUntilRunning("cpmd")
   
+  natsClient = NatsClient("majorDomo", 10)
+  await natsClient.connectToServers()
+  
+  externalWS = ExternalWebServer(natsClient)
+  podWS      = PodWebServer(natsClient)
+
   try: 
     await asyncio.gather(
       natsClient.heartBeat(),
+      externalWS.runApp(),
+      podWS.runApp()
     )
-  finally:
+  finally: 
     await natsClient.closeConnection()
+    await natsServer.stopServer()
+    await natsServerTask
 
 try: 
   asyncio.run(main(), debug=True)
