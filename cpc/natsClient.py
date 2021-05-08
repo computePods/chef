@@ -2,16 +2,17 @@ import asyncio
 import logging
 import os
 import platform
+import yaml
 
 from nats.aio.client import Client as NATS
 from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 class NatsMsg(BaseModel):
   subject: str
-  message: str
+  message: List
 
 async def natsClientError(err) :
   logging.error("NatsClient : {err}".format(err=err))
@@ -29,6 +30,7 @@ class NatsClient :
     self.containerName = aContainerName
     self.heartBeatPeriod = aHeartBeatPeriod
     self.shutdown   = False
+    self.subscriptions = []
 
   async def heartBeat(self) :
     logging.info("NatsClient: starting heartbeat")
@@ -41,6 +43,42 @@ class NatsClient :
       )
       await self.nc.publish("heartbeat", bytes(msg, 'utf-8'))
       await asyncio.sleep(self.heartBeatPeriod)
+
+  def unpackMessage(self, callback) :
+    async def callbackWithUnpackedMessage(msg) :
+      unpackedSubject = msg.subject.split('.')
+      unpackedSubject.insert(0, msg.subject)
+      unpackedData    = msg.data.decode()
+      if not type(unpackedData) == 'dict' :
+        originalUnpackedData = unpackedData
+        unpackedData = { 
+          str(type(originalUnpackedData).__name__) : originalUnpackedData
+        }
+      print(unpackedSubject[0])
+      print(yaml.dump(unpackedSubject))
+      print(yaml.dump(unpackedData))
+      await callback(unpackedSubject, unpackedData)
+    return callbackWithUnpackedMessage
+
+  # A Python decorator (with an argument)
+  # which records the subscription and callback
+  # in a list for later processing
+  #
+  def subscribe(self, subscription) :
+    def decorator_subscribe(callback) :
+      self.subscriptions.append({
+        'subscription' : subscription,
+        'callback'     : callback
+       })
+    return decorator_subscribe
+  
+  async def listenForMessagesOnDecoratedSubscriptions(self) :
+    logging.info("NatsClient: Listening to decorated subscriptions")
+    for aSubscription in self.subscriptions :
+      await self.nc.subscribe(
+        aSubscription['subscription'],
+        cb=self.unpackMessage(aSubscription['callback'])
+      )
 
   async def listenForMessages(self, subject, callBack) :
     await self.nc.subscribe(subject, cb=callBack)

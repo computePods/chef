@@ -1,11 +1,11 @@
 # ComputePods Chef plugins
 
-Any Python file found in this directory will be loaded and the Python 
-class with the same name as the file will in instantiated. 
+Any Python module with `registerPlugin` function found in this directory 
+will be loaded and registered (using the `registerPlugin` function).
 
-This instantiation will be passed a NatsClient object which is connected 
-to a NATS server. This allows the plugin to register its interest in any 
-or all known NATS message subjects. 
+The `registerPlugin` function will be passed a NatsClient object which is 
+connected to a NATS server. This allows the plugin to register its 
+interest in any or all known NATS message subjects. 
 
 At the moment we have the following NATS message subjects:
 

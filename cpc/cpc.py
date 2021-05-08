@@ -32,9 +32,15 @@ async def main() :
   for aFile in pluginFiles :
     if aFile.endswith('.py') :
       if aFile != '__init__.py' :
-        print("importing {}".format(aFile))
+        logging.info("Importing the {} plugin".format(aFile[:-3]))
         aPlugin = importlib.import_module('plugins.{}'.format(aFile[:-3]))
-        await aPlugin.registerPlugin(natsClient)
+        if hasattr(aPlugin, 'registerPlugin') :
+          logging.info("Registering the {} plugin".format(aFile[:-3]))
+          await aPlugin.registerPlugin(natsClient)
+        else:
+          logging.info("Plugin {} has no registerPlugin method!".format(aFile[:-3]))
+
+  await natsClient.listenForMessagesOnDecoratedSubscriptions()
   
   try: 
     await asyncio.gather(

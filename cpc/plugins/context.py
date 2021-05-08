@@ -5,16 +5,11 @@
 import plugins
 import yaml
 
-async def registerPlugin(natsClient) :
+async def registerPlugin(nc) :
   print("Registering ConTeXt plugin via registerPlugin")
-
-  async def subscribe(subscription, callback) :
-    await natsClient.listenForMessages(subscription, callback)
-
-  @subscribe("silly.>")
-  async def dealWithSillyMessages(msg) :
-    subject = msg.subject
-    data = msg.data.decode()
+  
+  @nc.subscribe("silly.>")
+  async def dealWithSillyMessages(subject, data) :
     print(type(subject))
     print(subject)
     print(type(data))
