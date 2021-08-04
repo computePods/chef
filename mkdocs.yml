@@ -1,0 +1,17 @@
+site_name: ComputePods Chef
+
+site_url: https://computepods.github.io/chef/
+
+repo_url: https://github.com/computePods/chef
+
+plugins:
+  - search
+  - compute-pods
+  - awesome-pages
+  - mermaid2
+  - mkdocstrings:
+      watch:
+        - cpc
+
+theme:
+  name: material
