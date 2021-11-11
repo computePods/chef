@@ -1,0 +1,30 @@
+[project]
+name = "ComputePodChef"
+version = "0.0.1"
+description = "A process which runs, on behalf of users, one type of task inside a ComputePod."
+authors = [
+    {name = "Stephen Gaito", email = "stephen@perceptisys.co.uk"},
+]
+dependencies = [
+    "pyyaml",
+    "ComputePodPythonUtils @ git+https://github.com/computePods/pythonUtils.git",
+    "ComputePodInterfaces  @ git+https://github.com/computePods/interfaces.git",
+    "aiofiles~=0.7",
+]
+requires-python = ">=3.9"
+dynamic = ["classifiers"]
+license = {text = "Apache-2.0"}
+
+[project.urls]
+homepage = "https://github.com/computePods/chef"
+
+[project.scripts]
+cpchef = "cpchef:cpchef"
+
+[project.optional-dependencies]
+[build-system]
+requires = ["pdm-pep517"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]

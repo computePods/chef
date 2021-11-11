@@ -1,0 +1,6 @@
+natsServer:
+  host: localhost
+  port: 4222
+
+pluginsDirs:
+  - plugins

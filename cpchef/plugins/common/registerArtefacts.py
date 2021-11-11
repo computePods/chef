@@ -1,0 +1,24 @@
+# This is the common ComputePods Chef plugin which (re)registers all known
+# artefacts.
+
+# It provides the MajorDomo details on which artefacts this Chef knows how
+# to work with.
+
+import cpchef.plugins
+import yaml
+
+def registerPlugin(config, natsClient) :
+  print("Registering common registerArtefacts plugin via registerPlugin")
+  print(config['artefactRegistrars'])
+
+  @natsClient.subscribe("artefacts.registerTypes")
+  async def reRegisterKnownArtefacts(subject, data) :
+
+    artefactRegistrars = []
+    if 'artefactRegistrars' in config :
+      artefactRegistrars = config['artefactRegistrars']
+
+    for aRegistrar in artefactRegistrars :
+      await aRegistrar(config, natsClient)
+
+  print("Finished registering common registerArtefacts Plugin")
