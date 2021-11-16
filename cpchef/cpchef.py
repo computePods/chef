@@ -3,6 +3,7 @@ import logging
 import signal
 
 from cpchef.loadConfiguration import parseCliArgs, loadConfig, loadPlugins
+from cpchef.utils import setConfig
 
 from cputils.natsClient import NatsClient
 
@@ -45,6 +46,7 @@ def cpchef() :
   logging.info("ComputePods Chef starting")
 
   config = loadConfig(cliArgs)
+  setConfig(config)
 
   loop = asyncio.get_event_loop()
 

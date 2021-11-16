@@ -120,3 +120,6 @@ async def loadPlugins(config, natsClient) :
         print("Plugin {} has no registerArtefacts method!".format(module_name))
 
   print(config['artefactRegistrars'])
+  print("")
+  print("Waiting for build requests")
+  print("")
