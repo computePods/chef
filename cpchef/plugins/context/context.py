@@ -5,6 +5,10 @@
 import os
 import signal
 import yaml
+from aiofiles.os import wrap
+
+aioMakedirs = wrap(os.makedirs)
+aioSystem   = wrap(os.system)
 
 from cputils.debouncingTaskRunner import \
   NatsLogger, FileLogger, MultiLogger, DebouncingTaskRunner
@@ -17,19 +21,33 @@ def registerPlugin(config, natsClient) :
 
   @natsClient.subscribe("build.from.>")
   async def dealWithBuildRequest(subject, data) :
-    projectDir = os.getcwd()
+    scriptsDir = os.path.abspath(os.path.dirname(__file__))
+    workingDir = os.path.join(os.getcwd(), 'tmpDir')
+    if 'workingDir' in config :
+      workingDir = config['workingDir']
+    await aioSystem(f"rm -rf {workingDir}")
+    await aioMakedirs(workingDir, exist_ok=True)
+    projectDir = workingDir
     if 'path' in data : projectDir = data['path']
     projectDir = os.path.abspath(os.path.expanduser(projectDir))
     taskName = "aTask"
     if 'name' in data : taskName = data['name']
     documentName = taskName
     if 'doc' in data : documentName = data['doc']
+    podName = None
+    if 'podName' in data : podName = data['podName']
+    userName = None
+    if 'userName' in data : userName = data['userName']
+    if userName is not None and podName is not None :
+      projectDir = f"{userName}@{podName}:{projectDir}"
     taskDetails = {
       'cmd' : [
-        'context',
-        documentName
+        'sh',
+        os.path.join(scriptsDir, 'context.sh'),
+        documentName,
+        projectDir
       ],
-      'projectDir' : projectDir
+      'projectDir' : workingDir
     }
     taskLog = FileLogger("stdout", 5)
     #taskLog = MultiLogger([
