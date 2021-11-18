@@ -6,6 +6,7 @@ import logging
 import os
 import pkgutil
 import sys
+import traceback
 import yaml
 
 import cputils.yamlLoader
@@ -115,7 +116,17 @@ async def loadPlugins(config, natsClient) :
         #
         # now register for the first time...
         #
-        await thePlugin.registerArtefacts(config, natsClient)
+        try :
+          await thePlugin.registerArtefacts(config, natsClient)
+        except Exception as err :
+          print("\n----------------------------------------------------------")
+          print("ArtefactType registration exception")
+          print(f"in module: {module_name}")
+          print(f"loaded from: {aPluginsDir}\n")
+          print("".join(traceback.format_exc()))
+          print("continuing....")
+          print("----------------------------------------------------------\n")
+          await natsClient.sendMessage("failed.register.artefacts", None)
       else:
         print("Plugin {} has no registerArtefacts method!".format(module_name))
 
