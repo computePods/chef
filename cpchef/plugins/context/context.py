@@ -2,6 +2,7 @@
 
 # It provides the Chef with recipes on how to typeset ConTeXt documents....
 
+import asyncio
 import os
 import signal
 import yaml
@@ -65,10 +66,22 @@ def registerPlugin(config, natsClient) :
     await taskLog.write(yaml.dump(data))
     await taskLog.write("\n")
 
+    workDone = asyncio.Event()
+
+    def doneCallback() :
+      print("DONE callback!")
+      workDone.set()
+
     theTask = DebouncingTaskRunner(
-      1, taskName, taskDetails, taskLog, signal.SIGHUP
+      1, taskName, taskDetails, taskLog, signal.SIGHUP,
+      doneCallback=doneCallback,
     )
     await theTask.reStart()
+    await workDone.wait()
+    print("ALL DONE!")
+    await natsClient.sendMessage('done.'+subject[0], {
+      'retCode' : theTask.getReturnCode()
+    })
 
   print("Finished registering Context Plugin")
 
