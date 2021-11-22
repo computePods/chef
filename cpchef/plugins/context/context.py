@@ -26,7 +26,7 @@ def registerPlugin(config, natsClient) :
     workingDir = os.path.join(os.getcwd(), 'tmpDir')
     if 'workingDir' in config :
       workingDir = config['workingDir']
-    await aioSystem(f"rm -rf {workingDir}")
+    #await aioSystem(f"rm -rf {workingDir}")
     await aioMakedirs(workingDir, exist_ok=True)
     projectDir = workingDir
     if 'path' in data : projectDir = data['path']
@@ -78,10 +78,10 @@ def registerPlugin(config, natsClient) :
     )
     await theTask.reStart()
     await workDone.wait()
-    print("ALL DONE!")
     await natsClient.sendMessage('done.'+subject[0], {
       'retCode' : theTask.getReturnCode()
     })
+    print("ALL DONE!")
 
   print("Finished registering Context Plugin")
 

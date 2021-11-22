@@ -8,7 +8,7 @@ fi
 documentName=$1
 projectPath=$2
 
-rsync -av $projectPath/* .
+#rsync -av $projectPath/* .
 
 pwd
 
@@ -16,4 +16,4 @@ tree
 
 context $documentName
 
-rsync -av . $projectPath
+#rsync -av . $projectPath
