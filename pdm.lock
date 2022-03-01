@@ -1,6 +1,6 @@
 [[package]]
 name = "aiofiles"
-version = "0.7.0"
+version = "0.8.0"
 requires_python = ">=3.6,<4.0"
 summary = "File support for asyncio."
 
@@ -10,16 +10,11 @@ version = "2.0.2"
 summary = "A simple optionally-async python inotify library, focused on simplicity of use and operation, and leveraging modern Python features"
 
 [[package]]
-name = "asyncio-nats-client"
-version = "0.11.4"
-summary = "NATS client for Python Asyncio"
-
-[[package]]
 name = "computepodinterfaces"
 version = "0.0.1"
 requires_python = ">=3.9"
 git = "https://github.com/computePods/interfaces.git"
-revision = "3a15cc2dec1b1c99ad2c814ce523dc35c0e92451"
+revision = "e4c2d29367fb86b12a7a82fb419338d0859cc70c"
 summary = "The HTTP and NATS interfaces for the ComputePods tools."
 
 [[package]]
@@ -27,13 +22,19 @@ name = "computepodpythonutils"
 version = "0.0.1"
 requires_python = ">=3.9"
 git = "https://github.com/computePods/pythonUtils.git"
-revision = "2693a484ff0d828614911cfce80aac0c3e13b6b5"
+revision = "03f6a34550d7b19931767f0d87e7c45f52d137b1"
 summary = "A collection of Python utilities required by many of the ComputePods tools."
 dependencies = [
+    "aiofiles~=0.7",
     "asyncinotify~=2.0",
-    "asyncio-nats-client~=0.11",
+    "nats-py",
     "pyyaml~=5.4",
 ]
+
+[[package]]
+name = "nats-py"
+version = "2.0.0"
+summary = "NATS client for Python"
 
 [[package]]
 name = "pyyaml"
@@ -46,16 +47,16 @@ lock_version = "3.1"
 content_hash = "sha256:6a0b881da2176ddf68326f8f7629fd7ce61c2c37187a37ca34c733d728679478"
 
 [metadata.files]
-"aiofiles 0.7.0" = [
-    {file = "aiofiles-0.7.0-py3-none-any.whl", hash = "sha256:c67a6823b5f23fcab0a2595a289cec7d8c863ffcb4322fb8cd6b90400aedfdbc"},
-    {file = "aiofiles-0.7.0.tar.gz", hash = "sha256:a1c4fc9b2ff81568c83e21392a82f344ea9d23da906e4f6a52662764545e19d4"},
+"aiofiles 0.8.0" = [
+    {file = "aiofiles-0.8.0-py3-none-any.whl", hash = "sha256:7a973fc22b29e9962d0897805ace5856e6a566ab1f0c8e5c91ff6c866519c937"},
+    {file = "aiofiles-0.8.0.tar.gz", hash = "sha256:8334f23235248a3b2e83b2c3a78a22674f39969b96397126cc93664d9a901e59"},
 ]
 "asyncinotify 2.0.2" = [
     {file = "asyncinotify-2.0.2-py3-none-any.whl", hash = "sha256:26fa85d282df0066ab423cd96754d7ea07e6013d8a69a51e573303dbd0d2dff6"},
     {file = "asyncinotify-2.0.2.tar.gz", hash = "sha256:867cc056d88fc07aa8b3d1dc5b9c3c911cdd6130a4df5f67beb1fdecfd37b164"},
 ]
-"asyncio-nats-client 0.11.4" = [
-    {file = "asyncio-nats-client-0.11.4.tar.gz", hash = "sha256:ede58bda6560cf4206059799597be9be7ba28a479c4d118cf00bda6e4471bf2e"},
+"nats-py 2.0.0" = [
+    {file = "nats-py-2.0.0.tar.gz", hash = "sha256:e983751199f38edad89eedc764d295f7359a2c0cc610d886e48e5a465b6a1ad1"},
 ]
 "pyyaml 5.4.1" = [
     {file = "PyYAML-5.4.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:3b2b1824fe7112845700f815ff6a489360226a5609b96ec2190a45e62a9fc922"},

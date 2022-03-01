@@ -2,5 +2,5 @@ natsServer:
   host: pi01
   port: 2224
 
-#pluginsDirs:
-#  - plugins
+pluginsDirs:
+  - plugins

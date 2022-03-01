@@ -79,6 +79,7 @@ def loadConfig(cliArgs) :
   if cliArgs.plugins :
     config['pluginsDirs'] = cliArgs.plugins
   config['pluginsDirs'].insert(0, 'cpchef/plugins/common')
+  config['pluginsDirs'].insert(0, 'cpchef/plugins/context')
 
   if config['verbose'] :
     print("--------------------------------------------------------------")
