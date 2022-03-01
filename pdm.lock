@@ -15,7 +15,7 @@ version = "0.11.4"
 summary = "NATS client for Python Asyncio"
 
 [[package]]
-name = "ComputePodInterfaces"
+name = "computepodinterfaces"
 version = "0.0.1"
 requires_python = ">=3.9"
 git = "https://github.com/computePods/interfaces.git"
@@ -23,7 +23,7 @@ revision = "3a15cc2dec1b1c99ad2c814ce523dc35c0e92451"
 summary = "The HTTP and NATS interfaces for the ComputePods tools."
 
 [[package]]
-name = "ComputePodPythonUtils"
+name = "computepodpythonutils"
 version = "0.0.1"
 requires_python = ">=3.9"
 git = "https://github.com/computePods/pythonUtils.git"
@@ -38,12 +38,12 @@ dependencies = [
 [[package]]
 name = "pyyaml"
 version = "5.4.1"
-requires_python = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 summary = "YAML parser and emitter for Python"
 
 [metadata]
-lock_version = "3"
-content_hash = "sha256:cc02a4423a2ad0f569a650de36c3b90404e21d0076e797c5ebfc8cfd7b3cae45"
+lock_version = "3.1"
+content_hash = "sha256:6a0b881da2176ddf68326f8f7629fd7ce61c2c37187a37ca34c733d728679478"
 
 [metadata.files]
 "aiofiles 0.7.0" = [
