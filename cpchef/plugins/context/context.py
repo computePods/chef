@@ -29,24 +29,26 @@ def registerPlugin(config, natsClient) :
     #await aioSystem(f"rm -rf {workingDir}")
     await aioMakedirs(workingDir, exist_ok=True)
     projectDir = workingDir
-    if 'path' in data : projectDir = data['path']
-    projectDir = os.path.abspath(os.path.expanduser(projectDir))
+    if 'projectDir' in data : projectDir = data['projectDir']
+    #projectDir = os.path.abspath(os.path.expanduser(projectDir))
     taskName = "aTask"
-    if 'name' in data : taskName = data['name']
+    if 'taskName' in data : taskName = data['taskName']
     documentName = taskName
     if 'doc' in data : documentName = data['doc']
-    podName = None
-    if 'podName' in data : podName = data['podName']
-    userName = None
-    if 'userName' in data : userName = data['userName']
-    if userName is not None and podName is not None :
-      projectDir = f"{userName}@{podName}:{projectDir}"
+    rsyncHostName = None
+    if 'rsyncHostName' in data : rsyncHostName = data['rsyncHostName']
+    rsyncUserName = None
+    if 'rsyncUserName' in data : rsyncUserName = data['rsyncUserName']
+    rsyncProjectDir = projectDir
+    if rsyncUserName is not None and rsyncHostName is not None :
+      rsyncProjectDir = f"{rsyncUserName}@{rsyncHostName}:{projectDir}"
     taskDetails = {
       'cmd' : [
         'sh',
         os.path.join(scriptsDir, 'context.sh'),
         documentName,
-        projectDir
+        projectDir,
+        rsyncProjectDir
       ],
       'projectDir' : workingDir
     }

@@ -1,19 +1,20 @@
 # This shell script typesets a context document located at projectPath
 
-if test $# -ne 2 ; then
+if test $# -ne 3 ; then
   echo "usage: context.sh <documentName> <projectPath>"
   exit 1
 fi
 
 documentName=$1
 projectPath=$2
+rsyncProjectPath=$3
 
-#rsync -av $projectPath/* .
+echo rsync -av $rsyncProjectPath/* .
 
 pwd
 
 tree
 
-context $documentName
+echo context $documentName
 
-#rsync -av . $projectPath
+echo rsync -av . $rsyncProjectPath
