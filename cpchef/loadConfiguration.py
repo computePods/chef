@@ -78,8 +78,7 @@ def loadConfig(cliArgs) :
 
   if cliArgs.plugins :
     config['pluginsDirs'] = cliArgs.plugins
-  config['pluginsDirs'].insert(0, 'cpchef/plugins/common')
-  config['pluginsDirs'].insert(0, 'cpchef/plugins/context')
+  config['pluginsDirs'].insert(0, 'cpchef/plugins')
 
   if config['verbose'] :
     print("--------------------------------------------------------------")
@@ -87,6 +86,51 @@ def loadConfig(cliArgs) :
     print("--------------------------------------------------------------")
 
   return config
+
+async def loadPluginsFrom(
+  aPkgPath, aPluginsDir, config, natsClient, artefactRegistrars
+) :
+  for (_, module_name, _) in pkgutil.iter_modules([aPluginsDir]) :
+    modulePackageDir = os.path.join( aPluginsDir, module_name, '__init__.py')
+    modulePackagePy  = os.path.join( aPluginsDir, module_name + '.py')
+    if os.path.isfile(modulePackageDir) :
+      await loadPluginsFrom(
+        aPkgPath + '.' + module_name,
+        os.path.dirname(modulePackageDir),
+        config,
+        natsClient,
+        artefactRegistrars
+      )
+    elif os.path.isfile(modulePackagePy) :
+      logging.info("Importing the {}.{} plugin".format(aPkgPath, module_name))
+      thePlugin = importlib.import_module(aPkgPath+'.'+module_name)
+      if hasattr(thePlugin, 'registerPlugin') :
+        logging.info("Registering the {}.{} plugin".format(aPkgPath, module_name))
+        thePlugin.registerPlugin(config, natsClient)
+      else:
+        logging.info("Plugin {}.{} has no registerPlugin method!".format(aPkgPath, module_name))
+      if hasattr(thePlugin, 'registerArtefacts') :
+        print("Adding the registerArtefacts method from the {}.{} plugin".format(aPkgPath, module_name))
+        #
+        # store for later registration requests...
+        #
+        artefactRegistrars.append(thePlugin.registerArtefacts)
+        #
+        # now register for the first time...
+        #
+        try :
+          await thePlugin.registerArtefacts(config, natsClient)
+        except Exception as err :
+          print("\n----------------------------------------------------------")
+          print("ArtefactType registration exception")
+          print(f"in module: {aPkgPath}.{module_name}")
+          print(f"loaded from: {aPluginsDir}\n")
+          print("".join(traceback.format_exc()))
+          print("continuing....")
+          print("----------------------------------------------------------\n")
+          await natsClient.sendMessage("failed.register.artefacts", None)
+      else:
+        print("Plugin {}.{} has no registerArtefacts method!".format(aPkgPath, module_name))
 
 async def loadPlugins(config, natsClient) :
   config['artefactRegistrars'] = []
@@ -100,36 +144,9 @@ async def loadPlugins(config, natsClient) :
       currentWD = os.path.abspath(os.getcwd())
       if currentWD not in sys.path :
         sys.path.insert(0, currentWD)
-    for (_, module_name, _) in pkgutil.iter_modules([aPluginsDir]) :
-      logging.info("Importing the {} plugin".format(module_name))
-      thePlugin = importlib.import_module(aPkgPath+'.'+module_name)
-      if hasattr(thePlugin, 'registerPlugin') :
-        logging.info("Registering the {} plugin".format(module_name))
-        thePlugin.registerPlugin(config, natsClient)
-      else:
-        logging.info("Plugin {} has no registerPlugin method!".format(module_name))
-      if hasattr(thePlugin, 'registerArtefacts') :
-        print("Adding the registerArtefacts method from the {} plugin".format(module_name))
-        #
-        # store for later registration requests...
-        #
-        artefactRegistrars.append(thePlugin.registerArtefacts)
-        #
-        # now register for the first time...
-        #
-        try :
-          await thePlugin.registerArtefacts(config, natsClient)
-        except Exception as err :
-          print("\n----------------------------------------------------------")
-          print("ArtefactType registration exception")
-          print(f"in module: {module_name}")
-          print(f"loaded from: {aPluginsDir}\n")
-          print("".join(traceback.format_exc()))
-          print("continuing....")
-          print("----------------------------------------------------------\n")
-          await natsClient.sendMessage("failed.register.artefacts", None)
-      else:
-        print("Plugin {} has no registerArtefacts method!".format(module_name))
+    await loadPluginsFrom(
+      aPkgPath, aPluginsDir, config, natsClient, artefactRegistrars
+    )
 
   print(config['artefactRegistrars'])
   print("")

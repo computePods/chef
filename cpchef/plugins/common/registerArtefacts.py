@@ -8,7 +8,7 @@ import cpchef.plugins
 import yaml
 
 def registerPlugin(config, natsClient) :
-  print("Registering common registerArtefacts plugin via registerPlugin")
+  print("Registering cpchef.plugins.common.registerArtefacts plugin via registerPlugin")
   print(config['artefactRegistrars'])
 
   @natsClient.subscribe("artefacts.registerTypes")
@@ -21,4 +21,4 @@ def registerPlugin(config, natsClient) :
     for aRegistrar in artefactRegistrars :
       await aRegistrar(config, natsClient)
 
-  print("Finished registering common registerArtefacts Plugin")
+  print("Finished registering cpchef.plugins.common.registerArtefacts Plugin")
