@@ -9,7 +9,11 @@ documentName=$1
 projectPath=$2
 rsyncProjectPath=$3
 
+echo "--------------------------------------------------------"
+echo $RSYNC_RSH
+echo "--------------------------------------------------------"
 echo rsync -av $rsyncProjectPath/* .
+rsync -av $rsyncProjectPath/* .
 
 pwd
 

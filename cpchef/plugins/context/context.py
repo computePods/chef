@@ -44,13 +44,16 @@ def registerPlugin(config, natsClient) :
       rsyncProjectDir = f"{rsyncUserName}@{rsyncHostName}:{projectDir}"
     taskDetails = {
       'cmd' : [
-        'sh',
+        '/bin/bash',
         os.path.join(scriptsDir, 'context.sh'),
         documentName,
         projectDir,
         rsyncProjectDir
       ],
-      'projectDir' : workingDir
+      'projectDir' : workingDir,
+      'env'  : {
+        'RSYNC_RSH' : f"ssh -v -i /tmp/test-rsa -o StrictHostKeyChecking=no"
+      }
     }
     taskLog = FileLogger("stdout", 5)
     #taskLog = MultiLogger([
