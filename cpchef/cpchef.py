@@ -6,6 +6,7 @@ from cpchef.loadConfiguration import parseCliArgs, loadConfig, loadPlugins
 from cpchef.utils import setConfig
 
 from cputils.natsClient import NatsClient
+from cputils.rsyncFileTransporter import RsyncFileTransporter
 
 async def runTasks(config) :
 
@@ -20,7 +21,15 @@ async def runTasks(config) :
   print(f"connecting to nats server: [{natsServerUrl}]")
   await natsClient.connectToServers([ natsServerUrl ])
 
-  await loadPlugins(config, natsClient)
+  rsyncManager = RsyncFileTransporter(config)
+  await rsyncManager.listenForHostPublicKeys(natsClient)
+  await rsyncManager.requestHostPublicKeys(natsClient)
+
+  managers = {
+    'rsync' : rsyncManager
+  }
+
+  await loadPlugins(config, managers, natsClient)
 
   await natsClient.listenForMessagesOnDecoratedSubscriptions()
 

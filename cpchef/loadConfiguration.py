@@ -88,7 +88,7 @@ def loadConfig(cliArgs) :
   return config
 
 async def loadPluginsFrom(
-  aPkgPath, aPluginsDir, config, natsClient, artefactRegistrars
+  aPkgPath, aPluginsDir, config, managers, natsClient, artefactRegistrars
 ) :
   for (_, module_name, _) in pkgutil.iter_modules([aPluginsDir]) :
     modulePackageDir = os.path.join( aPluginsDir, module_name, '__init__.py')
@@ -98,6 +98,7 @@ async def loadPluginsFrom(
         aPkgPath + '.' + module_name,
         os.path.dirname(modulePackageDir),
         config,
+        managers,
         natsClient,
         artefactRegistrars
       )
@@ -106,7 +107,7 @@ async def loadPluginsFrom(
       thePlugin = importlib.import_module(aPkgPath+'.'+module_name)
       if hasattr(thePlugin, 'registerPlugin') :
         logging.info("Registering the {}.{} plugin".format(aPkgPath, module_name))
-        thePlugin.registerPlugin(config, natsClient)
+        thePlugin.registerPlugin(config, managers, natsClient)
       else:
         logging.info("Plugin {}.{} has no registerPlugin method!".format(aPkgPath, module_name))
       if hasattr(thePlugin, 'registerArtefacts') :
@@ -132,7 +133,7 @@ async def loadPluginsFrom(
       else:
         print("Plugin {}.{} has no registerArtefacts method!".format(aPkgPath, module_name))
 
-async def loadPlugins(config, natsClient) :
+async def loadPlugins(config, managers, natsClient) :
   config['artefactRegistrars'] = []
   artefactRegistrars = config['artefactRegistrars']
 
@@ -145,7 +146,7 @@ async def loadPlugins(config, natsClient) :
       if currentWD not in sys.path :
         sys.path.insert(0, currentWD)
     await loadPluginsFrom(
-      aPkgPath, aPluginsDir, config, natsClient, artefactRegistrars
+      aPkgPath, aPluginsDir, config, managers, natsClient, artefactRegistrars
     )
 
   print(config['artefactRegistrars'])

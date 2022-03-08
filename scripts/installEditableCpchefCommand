@@ -18,6 +18,8 @@ fi
 
 cmdScript=$(pdm info | grep Packages | cut -d' ' -f5)/bin/cpchef
 
+mkdir -p $HOME/.local/bin
+
 cat << CMD_SCRIPT > $HOME/.local/bin/cpchef
 #!/bin/sh
 

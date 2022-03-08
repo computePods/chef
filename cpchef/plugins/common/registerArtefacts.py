@@ -7,7 +7,7 @@
 import cpchef.plugins
 import yaml
 
-def registerPlugin(config, natsClient) :
+def registerPlugin(config, managers, natsClient) :
   print("Registering cpchef.plugins.common.registerArtefacts plugin via registerPlugin")
   print(config['artefactRegistrars'])
 
