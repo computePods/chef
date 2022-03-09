@@ -2,5 +2,6 @@ natsServer:
   host: localhost
   port: 4222
 
+# NOTE: all additional plugin directories MUST have different names
 pluginsDirs:
   - plugins

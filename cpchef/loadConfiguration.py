@@ -90,6 +90,7 @@ def loadConfig(cliArgs) :
 async def loadPluginsFrom(
   aPkgPath, aPluginsDir, config, managers, natsClient, artefactRegistrars
 ) :
+  #logging.info(f"loadPluginsFrom {aPkgPath} {aPluginsDir}")
   for (_, module_name, _) in pkgutil.iter_modules([aPluginsDir]) :
     modulePackageDir = os.path.join( aPluginsDir, module_name, '__init__.py')
     modulePackagePy  = os.path.join( aPluginsDir, module_name + '.py')
@@ -138,13 +139,23 @@ async def loadPlugins(config, managers, natsClient) :
   artefactRegistrars = config['artefactRegistrars']
 
   for aPluginsDir in config['pluginsDirs'] :
-    aPkgPath = aPluginsDir.replace('/','.')
+    logging.info(f"Adding the plugins dir: {aPluginsDir}")
     if aPluginsDir.startswith('cpchef') :
       aPluginsDir = os.path.join(os.path.dirname(__file__), aPluginsDir.replace('cpchef/', ''))
+
+    if aPluginsDir.startswith('/') :
+      (aSysPluginsDir, aPkgPath) = os.path.split(aPluginsDir)
+      sys.path.insert(0, aSysPluginsDir)
+    else :
+      aPkgPath = aPluginsDir.replace('/','.')
+
     if not aPluginsDir.startswith('/') :
       currentWD = os.path.abspath(os.getcwd())
       if currentWD not in sys.path :
         sys.path.insert(0, currentWD)
+    #logging.info(f"aPkgPath {aPkgPath}")
+    #logging.info(f"aPluginsDir {aPluginsDir}")
+    #logging.info(yaml.dump(sys.path))
     await loadPluginsFrom(
       aPkgPath, aPluginsDir, config, managers, natsClient, artefactRegistrars
     )
