@@ -4,4 +4,4 @@ natsServer:
 
 # NOTE: all additional plugin directories MUST have different names
 pluginsDirs:
-  - plugins
+  - /contextPlugins

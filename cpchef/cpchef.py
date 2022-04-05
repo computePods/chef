@@ -47,7 +47,7 @@ def cpchef() :
     logging.basicConfig(level=logging.DEBUG)
   else :
     logging.basicConfig(level=logging.WARNING)
-  logger = logging.getLogger("majorDomo")
+  logger = logging.getLogger("chef")
 
   #logging.basicConfig(filename='majorDomo.log', encoding='utf-8', level=logging.DEBUG)
   #logging.basicConfig(level=logging.INFO)
