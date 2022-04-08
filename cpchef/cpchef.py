@@ -45,6 +45,8 @@ def cpchef() :
 
   if cliArgs.debug :
     logging.basicConfig(level=logging.DEBUG)
+  elif cliArgs.verbose :
+    logging.basicConfig(level=logging.INFO)
   else :
     logging.basicConfig(level=logging.WARNING)
   logger = logging.getLogger("chef")
